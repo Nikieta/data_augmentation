@@ -51,7 +51,7 @@ questions = load(open('data/movie_question_dict.pkl'))
 reddit_singles = pickle.load(open('data/reddit_singles.pkl','rb'))
 review_titles = pickle.load(open('data/review_titles.pkl' ,'rb' ))
 reviews = pickle.load(open('data/reviews.pkl','rb'))
-
+extra_data = pickle.load(open('data/extra_data.pkl','rb'))
 
 
 def convert_to_ascii(statement):
@@ -91,14 +91,23 @@ def check_if_exists(movie_id,key): #call augmentation directly from here refined
 			i = ch(np.arange(len(movies[movie_id].fav_scene)))
 			chosen = movies[movie_id].fav_scene[i]
 			conversation = statement_processing(ch(fav_scene_open_statements),chosen)
-			l = 2			
+			l = 2
+		elif movie_id in extra_data:	
+			chosen = extra_data[movie_id]['fav_scene']
+			conversation = statement_processing(ch(fav_scene_open_statements),chosen)
+			l = 2
+		
 
 	if key == 'character':
 		if movies[movie_id].fav_character:
 			i = ch(np.arange(len(movies[movie_id].fav_character)))
 			chosen = movies[movie_id].fav_character[i]
 			conversation = statement_processing(ch(fav_character_open_statements),chosen)
-			l = 4			
+			l = 4
+		elif movie_id in extra_data:	
+			chosen = extra_data[movie_id]['fav_character']
+			conversation = statement_processing(ch(fav_character_open_statements),chosen)
+			l = 4		
 			
 	
 	'''		
@@ -126,6 +135,10 @@ def check_if_exists(movie_id,key): #call augmentation directly from here refined
 			i = ch(np.arange(len(movies[movie_id].opinion)))
 			chosen = movies[movie_id].opinion[i]
 			conversation = statement_processing(ch(opinion_open_statements),chosen)
+			l = 3
+		elif movie_id in extra_data:	
+			chosen = extra_data[movie_id]['opinion']
+			conversation = statement_processing(ch(opinion_open_statements),chosen)
 			l = 3		
 
 
@@ -142,6 +155,10 @@ def check_if_exists(movie_id,key): #call augmentation directly from here refined
 		if movies[movie_id].do_you_remember:
 			i = ch(np.arange(len(movies[movie_id].do_you_remember)))
 			chosen = movies[movie_id].do_you_remember[i]
+			conversation = statement_processing(chosen)
+			l = 5
+		elif movie_id in extra_data:	
+			chosen = extra_data[movie_id]['do_you_remember']
 			conversation = statement_processing(chosen)
 			l = 5			
 
@@ -258,7 +275,7 @@ def main():
 	keys = ['scene','character','opinion','critical_review','question','remember']
 	count = np.ones(len(keys))
 	movie_name = data['title']
-	wiki = data['wiki']
+	#wiki = data['wiki']
 	imdb_id = data['imdb_id']
 	s_movie_name = []
 	s_wiki = []
@@ -272,7 +289,7 @@ def main():
 	m_comment = []
 	s_rev_lengend = []
 
-	for m,id_ ,w in zip(movie_name,imdb_id,wiki):
+	for m,id_ in zip(movie_name,imdb_id):
 		conversation = None
 		keys = ['scene','character','opinion','critical_review','question','remember']
 		flag = True
@@ -286,7 +303,7 @@ def main():
 			keys.remove(key)
 
 		if flag:
-			s_wiki.append(w)
+			s_wiki.append('https://en.wikipedia.org/?curid='+str(movies[id_].wiki_id))
 			s_chat.append(conversation)
 			s_imdb_id.append(id_)
 			s_movie_name.append(m)
@@ -310,14 +327,14 @@ def main():
 
 		else:
 			did_not.append(id_)
-	#print(did_not)
+	print(did_not)
 	
 	for i in did_not:
 		conversation,i_m,l = check_if_exists(i,'scene')
-		s_wiki.append('https://en.wikipedia.org/?curid='+str(movies[id_].wiki_id))
+		s_wiki.append('https://en.wikipedia.org/?curid='+str(movies[i].wiki_id))
 		s_chat.append(conversation)
-		s_imdb_id.append(id_)
-		s_movie_name.append(movies[id_].title)
+		s_imdb_id.append(i)
+		s_movie_name.append(movies[i].title)
 		index_.append(i_m)
 		legend.append(l)
 		m_plot.append(movies[i].plot)
@@ -333,13 +350,14 @@ def main():
 		else:
 			m_review.append("")
 			s_rev_lengend.append(-1)	
-		m_plot,s_plot_legend = plot_array(m_plot)
+		
+	m_plot,s_plot_legend = plot_array(m_plot)
 	
 	print(len(s_wiki))
 
 	d = {'comment_1': m_comment,'plot_1':m_plot,'review_1':m_review ,'chat_1': s_chat, 'wiki_1':s_wiki, 'imdb_id_1': s_imdb_id, 'movie_name_1': s_movie_name, 'legend_1': legend, 'used_index_1': index_,'review_legend_1': s_rev_lengend,'plot_legend_1':s_plot_legend}
 	df = pd.DataFrame(d)
-	df.to_csv('self_chat_batch_'+str(ind) + '.csv',index=False)
+	df.to_csv('self_chat_batch_'+str(ind) + '.csv',index=False,encoding = 'utf-8')
 	#pickle.dump(did_not,open('augmented_start_failed_batch_1.csv','wb'))
 
 
