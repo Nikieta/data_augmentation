@@ -32,8 +32,8 @@ This plus for active
 3. Do you remember
 4. Synthetic
 '''
-fname_input = sys.argv[1]
-ind = sys.argv[2]
+fname_input = '/home/nikita/Downloads/1000_movies_simple.csv' #hardcoding here
+ind = sys.argv[1]
 movies = None
 people = None
 genres = None
@@ -272,11 +272,16 @@ def normalise(a):
 '''
 def main():
 	data = pd.read_csv(fname_input) # change file_name here
+	x = np.arange(len(data)) 
+	np.random.shuffle(x)#number of movies you want to give
+	x = x[0:int(sys.argv[2])	]
 	keys = ['scene','character','opinion','critical_review','question','remember']
 	count = np.ones(len(keys))
-	movie_name = data['title']
+	movie_name =np.array(data['title'])
+	movie_name = movie_name[x]
 	#wiki = data['wiki']
-	imdb_id = data['imdb_id']
+	imdb_id = np.array(data['imdb_id'])
+	imdb_id = imdb_id[x]
 	s_movie_name = []
 	s_wiki = []
 	s_imdb_id = []
@@ -328,7 +333,7 @@ def main():
 		else:
 			did_not.append(id_)
 	print(did_not)
-	
+	'''
 	for i in did_not:
 		conversation,i_m,l = check_if_exists(i,'scene')
 		s_wiki.append('https://en.wikipedia.org/?curid='+str(movies[i].wiki_id))
@@ -350,7 +355,7 @@ def main():
 		else:
 			m_review.append("")
 			s_rev_lengend.append(-1)	
-		
+	'''	
 	m_plot,s_plot_legend = plot_array(m_plot)
 	
 	print(len(s_wiki))
