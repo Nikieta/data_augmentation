@@ -25,7 +25,7 @@ def remove_tags(source_string):
 def augment_response(input_,chat):
 	new_chats = []
 	for i,c in zip(input_,chat):
-		s = remove_tags(convert_to_ascii(str(i)))  + str(c)
+		s = remove_tags(convert_to_ascii(str(i)))  + c
 		new_chats.append(s)
 	#new_chats = remove_tags(new_chats)
 	return new_chats	
@@ -36,31 +36,32 @@ def statement_processing(input_chat):
 	flag = np.zeros(len(input_chat))
 	count = 0
 	x_count = 0
-	chat_len = []
+	count_p = 0
+	count_n = 0
+	count_r = 0
+	count_c = 0
 	for every_chat in input_chat:
-		colon_count = re.findall(':',every_chat)
-		every_chat = re.sub('\n\n','\n',every_chat)
-		every_chat = every_chat.strip()
-		s = every_chat.split('\n')
-		for i in s:
-			if s =='':
-				s.remove(i)
-		if len(s) != colon_count:
-			flag[count] = len(colon_count)
+		colon_count = re.find_all(every_chat)
+		s = input_chat.split('\n')
+		flag_count = colon_count		
 		st = []
 		anno = []
 		
 		for i in s:
-			x = i.partition(':')
+			x = s.partition(':')
 			st.append(str(x[2]))
 			if 'P' in str(x[0]):
 				anno.append('P')
+				count_p = count_p + 1
 			elif 'R' in str(x[0]):
 				anno.append('R')
+				count_r = count_r + 1
 			elif 'N' in str(x[0]):
 				anno.append('N')
+				count_n = count_n + 1
 			elif 'C' in str(x[0]):
 				anno.append('C')
+				count_c = count_c + 1
 			else:
 				anno.append('X')
 				x_count = x_count + 1	
@@ -70,6 +71,10 @@ def statement_processing(input_chat):
 		all_anno.append(anno)
 		count = count + 1	
 	print (x_count)
+	print (c_count)
+	print (n_count)
+	print (r_count)
+	print (p_count)
 	return all_st, all_anno, flag
 
 def movie_stats(data):
@@ -88,6 +93,6 @@ input_chat = data['Input.chat_1']
 answer_chat = data['Answer.writing_chats']
 chat = augment_response(input_chat,answer_chat)
 a,b,c = statement_processing(chat)
-d = {'chat':a,'anno':b,'flag':c,'chat_og':answer_chat}
+d = {'chat':a,'anno':b,'flag':c}
 df = pd.DataFrame(d)
 df.to_csv('trying.csv',index = False)
