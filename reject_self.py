@@ -37,11 +37,9 @@ def compare(string1,string2): #change to return indices
 	
 	match = SequenceMatcher(None, string1.lower(), string2.lower()).find_longest_match(0, len(string1), 0, len(string2))
 
-	if match.size > 0:
-		print (match.size)
+	if match.size > 2:
+		#print (match.size)
 		return True
-	else:
-		print(string2)
 	return False
 
 def check_resource_usage(sent,comment,review):
@@ -103,7 +101,7 @@ comment = data['Input.comment_1']
 review = data['Input.review_1']
 for m,a,an,c,r in zip(movie_name,answers,assn_status,comment,review):
 	flag = False
-	flag = check_annotation(a) and check_eight(a)  and check_instruction_copy(a) and check_assn_status(m) and check_resource_usage(a,c,r) and check_sort_of(a)
+	flag = check_annotation(a) and check_eight(a)  and check_instruction_copy(a) and check_assn_status(an) and check_resource_usage(a,c,r) and check_sort_of(a)
 	if check_assn_status(an):
 		if flag:
 			accept.append('x')

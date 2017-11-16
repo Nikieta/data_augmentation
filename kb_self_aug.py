@@ -32,7 +32,7 @@ This plus for active
 3. Do you remember
 4. Synthetic
 '''
-fname_input = '/home/nikita/Downloads/1000_movies_simple.csv' #hardcoding here
+fname_input = 'new_1000_movies.csv' #hardcoding here
 ind = sys.argv[1]
 movies = None
 people = None
@@ -54,6 +54,18 @@ reviews = pickle.load(open('data/reviews.pkl','rb'))
 extra_data = pickle.load(open('data/extra_data.pkl','rb'))
 
 
+def array_to_html(input):
+	s = ''
+	for i in input:
+		s = s + '<p>' + str(i) + '</p>'
+	return s
+def movies_like_list(input):
+	global movies
+	s = ''
+	for i in input:
+		 s = s +'<p>'+ i.title + '</p>'
+	return s
+
 def convert_to_ascii(statement):
 	if statement == None:
 		return ''
@@ -71,13 +83,13 @@ def change_to_html(array):
 	return s
 
 def statement_processing(start,end=None):
-	x = '<p><b> Speaker1 (N): </b> '+ start + '</p>'
+	x = '<p><b> Speaker1 (N): </b> '+ str(start) + '</p>'
 
 	if end ==None:
 		return 	
 	
 	else:
-		return x + '<p><b> Speaker2 (C): </b> '+ end + '</p>'
+		return x + '<p><b> Speaker2 (C): </b> '+ str(end) + '</p>'
 	
 
 def check_if_exists(movie_id,key): #call augmentation directly from here refined logic for breakpoint
@@ -293,6 +305,10 @@ def main():
 	m_review = []
 	m_comment = []
 	s_rev_lengend = []
+	awards = []
+	box_office = []
+	movies_like = []
+	taglines = []
 
 	for m,id_ in zip(movie_name,imdb_id):
 		conversation = None
@@ -315,6 +331,10 @@ def main():
 			index_.append(i)
 			legend.append(l)
 			m_plot.append(movies[id_].plot)
+			awards.append(array_to_html(movies[id_].awards[0:3]))
+			box_office.append(movies[id_].net_gross)
+			movies_like.append(movies_like_list(movies[id_].movies_like[0:5]))
+			taglines.append(array_to_html(movies[id_].taglines[0:3]))
 			temp = ""
 			if id_ in reddit_singles:
 				temp = temp + change_to_html(reddit_singles[id_])
@@ -360,7 +380,8 @@ def main():
 	
 	print(len(s_wiki))
 
-	d = {'comment_1': m_comment,'plot_1':m_plot,'review_1':m_review ,'chat_1': s_chat, 'wiki_1':s_wiki, 'imdb_id_1': s_imdb_id, 'movie_name_1': s_movie_name, 'legend_1': legend, 'used_index_1': index_,'review_legend_1': s_rev_lengend,'plot_legend_1':s_plot_legend}
+	d = {'comment_1': m_comment,'plot_1':m_plot,'review_1':m_review ,'chat_1': s_chat, 'wiki_1':s_wiki, 'imdb_id_1': s_imdb_id, 'movie_name_1': s_movie_name, 'legend_1': legend, 'used_index_1': index_,
+	'review_legend_1': s_rev_lengend,'plot_legend_1':s_plot_legend,'award_1':awards,'tagline_1':taglines,'box_office_1':box_office,'similar_movies_1':movies_like}
 	df = pd.DataFrame(d)
 	df.to_csv('self_chat_batch_'+str(ind) + '.csv',index=False,encoding = 'utf-8')
 	#pickle.dump(did_not,open('augmented_start_failed_batch_1.csv','wb'))
